@@ -1,0 +1,69 @@
+import requests
+import json
+import pandas as pd
+from datetime import datetime
+
+
+
+headers={
+        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36"
+    }
+
+url="https://api.inews.qq.com/newsqa/v1/automation/modules/list?modules=FAutoGlobalStatis,FAutoContinentStatis,FAutoGlobalDailyList,FAutoCountryConfi"
+
+response=requests.get(url,headers=headers)
+data=response.text
+data2=json.loads(data)
+data3=data2['data']
+data4=data3['FAutoGlobalDailyList']
+data4_2=data3['FAutoGlobalStatis']
+
+
+
+# 日期
+date=[]
+#确诊人数
+confirm=[]
+# 死亡人数
+dead=[]
+# 治愈人数
+heal=[]
+# 新增人数
+newAddConfirm=[]
+# 死亡率
+deadRate=[]
+# 治愈率
+healRate=[]
+
+
+for i in data4:
+    date.append("2020."+str(i['date']))
+    confirm.append(i["all"]['confirm'])
+    dead.append(i["all"]['dead'])
+    heal.append(i["all"]['heal'])
+    newAddConfirm.append(i["all"]['newAddConfirm'])
+    deadRate.append(i["all"]["deadRate"])
+    healRate.append(i["all"]["healRate"])
+#
+
+date.append(datetime.now().strftime("%Y.%m.%d"))
+confirm.append(data4_2['confirm'])
+dead.append(data4_2['dead'])
+heal.append(data4_2['heal'])
+newAddConfirm.append(data4_2['nowConfirmAdd'])
+deadRate.append("NaN")
+healRate.append("NaN")
+
+
+data5=pd.DataFrame({
+    "日期":date,
+    "确诊人数":confirm,
+     "死亡人数":dead,
+    "治愈人数":heal,
+    "新增人数":newAddConfirm,
+    "死亡率":deadRate,
+    "治愈率":healRate
+})
+ 
+file_path="D:/lx/视频录制/sklearn/数据/截止"+str(datetime.now().strftime("%Y.%m.%d"))+"海外疫情情况.csv"
+data5.to_csv(file_path,index=0)
